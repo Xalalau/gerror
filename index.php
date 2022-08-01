@@ -9,7 +9,7 @@ if (! $addon) {
     exit;
 }
 
-$header = <<<EOD
+$html_header = <<<EOD
 <html xmlns='http://www.w3.org/1999/xhtml' lang='en' xml:lang='en'>
 <head>
 	<title>GMod Errors</title>
@@ -48,7 +48,7 @@ $header = <<<EOD
 <span id="subtitle">$addon</span></br>
 </br>
 EOD;
-echo $header;
+echo $html_header;
 
 $errors = mysqli_query($CONNECTION, "SELECT * FROM gm_construct_13_beta ORDER BY `datetime` DESC LIMIT 100");
 
@@ -67,14 +67,17 @@ $status = [
     [ "Ignored", "#4f0656"]            // 5
 ];
 
-echo "<table>";
+$table_header = <<<EOD
+<table>
+<tr id='errors-th'>
+<th>status</th>
+<th>info</th>
+<th>error</th>
+</tr>
+EOD;
+echo $table_header;
 while ($error = mysqli_fetch_array($errors)) {
     $row = <<<EOD
-    <tr id='errors-th'>
-        <th>status</th>
-        <th>info</th>
-        <th>error</th>
-    </tr>
     <tr style='background-color: {$status[$error['status']][1]};'>
         <td>{$status[$error['status']][0]}</td>
         <td>{$error['datetime']}</br>{$error['map']}</br>{$error['quantity']} times</td>
@@ -87,11 +90,11 @@ while ($error = mysqli_fetch_array($errors)) {
 }
 echo "</table>";
 
-$footer = <<<EOD
+$html_footer = <<<EOD
 </body>
 </html>
 EOD;
-echo $footer;
+echo $html_footer;
 
 require "general/footer.php";
 ?>
