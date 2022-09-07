@@ -2,11 +2,35 @@
 require "general/header.php";
 require "config/gerror.php";
 
-$addon = "gm_construct_13_beta"; // TO-DO: use the system with more addons
+$addon = $_GET['addon'];
 if (! $addon) {
     echo "Missing fields";
     require "general/footer.php";
     exit;
+}
+
+$result_tables = mysqli_query($CONNECTION, "SELECT table_name FROM information_schema.tables WHERE table_schema = 'gmoderror';");
+$tables = [];
+while($row = $result_tables->fetch_row()) {
+    $tables[] = $row[0];
+}
+
+if ( ! in_array($addon, $tables)) {
+    echo "Unregistered addon! The current options are:<br/><br/>$addons_list";
+
+    foreach($tables as $table) {
+        echo " - <a href=\"?addon=$table\">" . $table . "</a><br/>";
+    }
+
+    require "general/footer.php";
+    exit;
+}
+
+$other_addons = "";
+foreach($tables as $table) {
+    if ($table != $addon) {
+        $other_addons .= "<a href=\"?addon=$table\">" . $table . "</a><br/>";
+    }
 }
 
 $html_header = <<<EOD
@@ -51,9 +75,9 @@ $html_header = <<<EOD
             display: inline-block;
             border-bottom: 1px dotted black;
         }
-        .tooltip .tooltiptext {
+        .tooltip .tooltip-text {
             visibility: hidden;
-            width: 120px;
+            min-width: 120px;
             background-color: black;
             color: #fff;
             text-align: center;
@@ -62,21 +86,37 @@ $html_header = <<<EOD
             position: absolute;
             z-index: 1;
             top: -5px;
-            left: 105%;
+            left: 104%;
         }
-        .tooltip:hover .tooltiptext {
+        .tooltip:hover .tooltip-text {
             visibility: visible;
+        }
+        #subheading-tooltip .tooltip-text {
+            left: 100%;
+            background-color: #2a3b01;
+            border-radius: 8px;
+            padding: 5px 10px 5px 10px;
+        }
+        #subheading-tooltip .tooltip-text a {
+            text-decoration: none;
+            color: #fff;
+            font-size: 1.5em;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 <span id="heading">Auto Reported Script Errors </span>
-<span id="subheading">$addon</span></br>
+<div id="subheading-tooltip" class="tooltip">
+    <span id="subheading">$addon</span>
+    <span class="tooltip-text">$other_addons</span>
+</div>
+</br>
 </br>
 EOD;
 echo $html_header;
 
-$errors = mysqli_query($CONNECTION, "SELECT * FROM gm_construct_13_beta ORDER BY `datetime` DESC LIMIT 100");
+$errors = mysqli_query($CONNECTION, "SELECT * FROM $addon ORDER BY `datetime` DESC LIMIT 100");
 
 if ($errors == false) {
     echo "No errors";
@@ -93,16 +133,11 @@ $status = [
     [ "Ignored"  , "79, 6, 86"  ]      // 5
 ];
 
-$tooltip = <<<EOD
-<div>
-<div style="background-color: rgb({$status[0][1]}, 255);">0 - {$status[0][0]}</div> 
-<div style="background-color: rgb({$status[1][1]}, 255);">1 - {$status[1][0]}</div> 
-<div style="background-color: rgb({$status[2][1]}, 255);">2 - {$status[2][0]}</div> 
-<div style="background-color: rgb({$status[3][1]}, 255);">3 - {$status[3][0]} Fix</div> 
-<div style="background-color: rgb({$status[4][1]}, 255);">4 - {$status[4][0]}</div> 
-<div style="background-color: rgb({$status[5][1]}, 255);">5 - {$status[5][0]}</div>
-</div>
-EOD;
+$tooltip_rows = "<div>";
+foreach($status as $key => $error_type) {
+    $tooltip_rows .= "<div style=\"background-color: rgb({$error_type[1]}, 255);\">$key - {$error_type[0]}</div>";
+}
+$tooltip_rows .= "</div>";
 
 $table_header = <<<EOD
 <table id="errors-table">
@@ -121,7 +156,7 @@ while ($error = mysqli_fetch_array($errors)) {
         <td>
             <div class="tooltip">
                 {$status[$error['status']][0]}
-                <span class="tooltiptext">$tooltip</span>
+                <span class="tooltip-text">$tooltip_rows</span>
             </div>
         </td>
         <td>{$error['datetime']}</br>{$error['map']}</br>{$error['quantity']} time(s)</td>
