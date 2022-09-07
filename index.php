@@ -21,7 +21,7 @@ $html_header = <<<EOD
 	<link href='https://xalalau.com/recursos/favicon2.png' rel='icon' type='image/png'/>
     <style>   
         html {
-            background-color: #181a1b;
+            background-color: #101112;
             color: #e8e6e3;
         }
         #errors-table {
@@ -85,22 +85,22 @@ if ($errors == false) {
 }
 
 $status = [
-    [ "TO-DO", "" ],                   // 0
-    [ "Critical", "#4c0000" ],         // 1
-    [ "Fixed", "#063a10" ],            // 2
-    [ "Wont Fix", "#4a2f10" ],         // 3
-    [ "Unrelated", "#10184a" ],        // 4
-    [ "Ignored", "#4f0656"]            // 5
+    [ "TO-DO"    , "36, 39, 41" ],     // 0
+    [ "Critical" , "76, 0, 0"   ],     // 1
+    [ "Fixed"    , "6, 58, 16"  ],     // 2
+    [ "Wont Fix" , "74, 47, 16" ],     // 3
+    [ "Unrelated", "16, 24, 74" ],     // 4
+    [ "Ignored"  , "79, 6, 86"  ]      // 5
 ];
 
 $tooltip = <<<EOD
 <div>
-<div style="background-color: #181a1b;">0 - TO-DO</div> 
-<div style="background-color: #4c0000;">1 - Critical</div> 
-<div style="background-color: #063a10;">2 - Fixed</div> 
-<div style="background-color: #4a2f10;">3 - Wont Fix</div> 
-<div style="background-color: #10184a;">4 - Unrelated</div> 
-<div style="background-color: #4f0656;">5 - Ignored</div>
+<div style="background-color: rgb({$status[0][1]}, 255);">0 - {$status[0][0]}</div> 
+<div style="background-color: rgb({$status[1][1]}, 255);">1 - {$status[1][0]}</div> 
+<div style="background-color: rgb({$status[2][1]}, 255);">2 - {$status[2][0]}</div> 
+<div style="background-color: rgb({$status[3][1]}, 255);">3 - {$status[3][0]} Fix</div> 
+<div style="background-color: rgb({$status[4][1]}, 255);">4 - {$status[4][0]}</div> 
+<div style="background-color: rgb({$status[5][1]}, 255);">5 - {$status[5][0]}</div>
 </div>
 EOD;
 
@@ -113,9 +113,11 @@ $table_header = <<<EOD
 </tr>
 EOD;
 echo $table_header;
+$odd = false;
 while ($error = mysqli_fetch_array($errors)) {
+    $opacity = $odd ? 0.7 : 1;
     $row = <<<EOD
-    <tr style='background-color: {$status[$error['status']][1]};'>
+    <tr style='background-color: rgba({$status[$error['status']][1]}, {$opacity});'>
         <td>
             <div class="tooltip">
                 {$status[$error['status']][0]}
@@ -129,6 +131,7 @@ while ($error = mysqli_fetch_array($errors)) {
     </tr>    
     EOD;
     echo $row;
+    $odd = !$odd;
 }
 echo "</table>";
 
