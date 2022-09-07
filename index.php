@@ -2,12 +2,7 @@
 require "general/header.php";
 require "config/gerror.php";
 
-$addon = $_GET['addon'];
-if (! $addon) {
-    echo "Missing fields";
-    require "general/footer.php";
-    exit;
-}
+$addon = $_GET['addon'] ?? NULL;
 
 $result_tables = mysqli_query($CONNECTION, "SELECT table_name FROM information_schema.tables WHERE table_schema = 'gmoderror';");
 $tables = [];
@@ -16,7 +11,11 @@ while($row = $result_tables->fetch_row()) {
 }
 
 if ( ! in_array($addon, $tables)) {
-    echo "Unregistered addon! The current options are:<br/><br/>";
+    if ($addon == NULL) {
+        echo "Select a registered addon:<br/><br/>";
+    } else {
+        echo "Unregistered addon! The current options are:<br/><br/>";
+    }
 
     foreach($tables as $table) {
         echo " - <a href=\"?addon=$table\">" . $table . "</a><br/>";
