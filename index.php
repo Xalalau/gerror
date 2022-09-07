@@ -122,7 +122,7 @@ while ($error = mysqli_fetch_array($errors)) {
                 <span class="tooltiptext">$tooltip</span>
             </div>
         </td>
-        <td>{$error['datetime']}</br>{$error['map']}</br>{$error['quantity']} times</td>
+        <td>{$error['datetime']}</br>{$error['map']}</br>{$error['quantity']} time(s)</td>
         <td>
             <pre>{$error['message']}</br>{$error['stack']}</pre>
         </td>
