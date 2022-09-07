@@ -16,7 +16,7 @@ while($row = $result_tables->fetch_row()) {
 }
 
 if ( ! in_array($addon, $tables)) {
-    echo "Unregistered addon! The current options are:<br/><br/>$addons_list";
+    echo "Unregistered addon! The current options are:<br/><br/>";
 
     foreach($tables as $table) {
         echo " - <a href=\"?addon=$table\">" . $table . "</a><br/>";
@@ -31,6 +31,17 @@ foreach($tables as $table) {
     if ($table != $addon) {
         $other_addons .= "<a href=\"?addon=$table\">" . $table . "</a><br/>";
     }
+}
+
+if ($other_addons == "") {
+    $subheading = "<span id=\"subheading\">$addon</span>";
+} else {
+    $subheading = <<<EOD
+    <div id="subheading-tooltip" class="tooltip">
+        <span id="subheading">$addon</span>
+        <span class="tooltip-text">$other_addons</span>
+    </div>
+    EOD;
 }
 
 $html_header = <<<EOD
@@ -107,10 +118,7 @@ $html_header = <<<EOD
 </head>
 <body>
 <span id="heading">Auto Reported Script Errors </span>
-<div id="subheading-tooltip" class="tooltip">
-    <span id="subheading">$addon</span>
-    <span class="tooltip-text">$other_addons</span>
-</div>
+$subheading
 </br>
 </br>
 EOD;
