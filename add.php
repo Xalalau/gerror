@@ -17,7 +17,7 @@ function UpdateError($CONNECTION, $registered, $error) {
     $quantity = $registered["quantity"] + $error['quantity'];
     $status = $registered["status"];
 
-    // Only to-dos and fixed are accepted
+    // Only to-do, critical and fixed can be updated
     if ($status > 2) {
         echo "Update ignored due to registered error status";
         return;
