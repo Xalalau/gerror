@@ -144,10 +144,10 @@ $subheading
 EOD;
 echo $html_header;
 
-$errors = mysqli_query($CONNECTION, "SELECT * FROM $addon ORDER BY `datetime` DESC LIMIT 100");
+$result_errors = mysqli_query($CONNECTION, "SELECT * FROM $addon ORDER BY `datetime` DESC LIMIT 100");
 
-if ($errors == false) {
-    echo "No errors";
+if (mysqli_num_rows($result_errors) == 0) {
+    echo "No errors registered. Break the addon to start.";
     require "general/footer.php";
     exit;
 }
@@ -182,7 +182,7 @@ $table_header = <<<EOD
 EOD;
 echo $table_header;
 $odd = false;
-while ($error = mysqli_fetch_array($errors)) {
+while ($error = mysqli_fetch_array($result_errors)) {
     $opacity = $odd ? 0.7 : 1;
     $tooltip_rows = GetErrorTooltipRows($addon, $status, $auth, $valid_auth, $error['idx']);
     $row = <<<EOD
