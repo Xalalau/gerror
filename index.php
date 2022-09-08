@@ -3,11 +3,14 @@ require "general/header.php";
 require "config/gerror.php";
 
 $addon = $_GET['addon'] ?? NULL;
+$auth = $_GET['auth'] ?? NULL;
 
 $result_tables = mysqli_query($CONNECTION, "SELECT table_name FROM information_schema.tables WHERE table_schema = 'gmoderror';");
 $tables = [];
 while($row = $result_tables->fetch_row()) {
-    $tables[] = $row[0];
+    if ($row[0] != "config") {
+        $tables[] = $row[0];
+    }
 }
 
 if ( ! in_array($addon, $tables)) {
@@ -18,22 +21,32 @@ if ( ! in_array($addon, $tables)) {
     }
 
     foreach($tables as $table) {
-        echo " - <a href=\"?addon=$table\">" . $table . "</a><br/>";
+        echo " - <a href='?addon=$table'>" . $table . "</a><br/>";
     }
 
     require "general/footer.php";
     exit;
 }
 
+// TO-DO: implement at least a form with a cookie to hold this info
+$valid_auth = false;
+if (isset($auth)) {
+    $result_auth = SafeMysqliQuery($CONNECTION, "SELECT * FROM config WHERE `key`='auth' AND `value`=?", "s", $auth);
+
+    if (mysqli_num_rows($result_auth) == 1) {
+        $valid_auth = true;
+    }
+}
+
 $other_addons = "";
 foreach($tables as $table) {
     if ($table != $addon) {
-        $other_addons .= "<a href=\"?addon=$table\">" . $table . "</a><br/>";
+        $other_addons .= "<a href='?addon=$table'>" . $table . "</a><br/>";
     }
 }
 
 if ($other_addons == "") {
-    $subheading = "<span id=\"subheading\">$addon</span>";
+    $subheading = "<span id='subheading'>$addon</span>";
 } else {
     $subheading = <<<EOD
     <div id="subheading-tooltip" class="tooltip">
@@ -41,6 +54,14 @@ if ($other_addons == "") {
         <span class="tooltip-text">$other_addons</span>
     </div>
     EOD;
+}
+
+$update_status = $_POST['update_status'] ?? NULL;
+if ($update_status != NULL && $valid_auth == true) {
+    $idx = intval($_POST['idx']);
+    if ($idx != 0) {
+        $update = SafeMysqliQuery($CONNECTION, "UPDATE " . $addon . " SET `status`=? WHERE `idx`=" . $idx, "i", $_POST['update_status']);
+    }
 }
 
 $html_header = <<<EOD
@@ -90,18 +111,18 @@ $html_header = <<<EOD
             min-width: 120px;
             background-color: black;
             color: #fff;
-            text-align: center;
             border-radius: 6px;
             padding: 5px;
             position: absolute;
             z-index: 1;
-            top: -5px;
-            left: 104%;
+            top: -67px;
+            left: 102%;
         }
         .tooltip:hover .tooltip-text {
             visibility: visible;
         }
         #subheading-tooltip .tooltip-text {
+            text-align: center;
             left: 100%;
             background-color: #2a3b01;
             border-radius: 8px;
@@ -132,43 +153,49 @@ if ($errors == false) {
 }
 
 $status = [
-    [ "TO-DO"    , "36, 39, 41" ],     // 0
-    [ "Critical" , "76, 0, 0"   ],     // 1
-    [ "Fixed"    , "6, 58, 16"  ],     // 2
-    [ "Wont Fix" , "74, 47, 16" ],     // 3
-    [ "Unrelated", "16, 24, 74" ],     // 4
-    [ "Ignored"  , "79, 6, 86"  ]      // 5
+    [ "TO-DO"    , "36, 39, 41" ],
+    [ "Critical" , "76, 0, 0"   ],
+    [ "Fixed"    , "6, 58, 16"  ],
+    [ "Wont Fix" , "74, 47, 16" ],
+    [ "Unrelated", "16, 24, 74" ],
+    [ "Ignored"  , "79, 6, 86"  ] 
 ];
 
-$tooltip_rows = "<div>";
-foreach($status as $key => $error_type) {
-    $tooltip_rows .= "<div style=\"background-color: rgb({$error_type[1]}, 255);\">$key - {$error_type[0]}</div>";
+function GetErrorTooltipRows($addon, $status, $auth, $valid_auth, $idx) {
+    $disabled = $valid_auth == false ? "disabled=1" : "";
+    $auth_link = $valid_auth == true ? "&auth=$auth" : "";
+    $tooltip_rows = "<form name='set_status' method='post' style='margin-block-end: 0;' action='/index.php?addon=$addon$auth_link'>";
+    foreach($status as $key => $error_type) {
+        $tooltip_rows .= "<div style='background-color: rgb({$error_type[1]}, 255);'><input $disabled type='radio' id='status-radio-{$key}-{$idx}' name='update_status' value='{$key}'><label for='status-radio-{$key}-{$idx}'>{$error_type[0]}</label></div>";
+    }
+    $tooltip_rows .= "<input type='hidden' name='idx' value='$idx'\><input $disabled type='submit' style='width: 100%; margin-top: 5px;' value='Submit'></form>";
+    return $tooltip_rows;
 }
-$tooltip_rows .= "</div>";
 
 $table_header = <<<EOD
 <table id="errors-table">
 <tr id='errors-th'>
-<th>status</th>
 <th>info</th>
 <th>error</th>
+<th>status</th>
 </tr>
 EOD;
 echo $table_header;
 $odd = false;
 while ($error = mysqli_fetch_array($errors)) {
     $opacity = $odd ? 0.7 : 1;
+    $tooltip_rows = GetErrorTooltipRows($addon, $status, $auth, $valid_auth, $error['idx']);
     $row = <<<EOD
     <tr style='background-color: rgba({$status[$error['status']][1]}, {$opacity});'>
+        <td>{$error['datetime']}</br>{$error['map']}</br>{$error['quantity']} time(s)</td>
+        <td>
+            <pre>{$error['message']}</br>{$error['stack']}</pre>
+        </td>
         <td>
             <div class="tooltip">
                 {$status[$error['status']][0]}
                 <span class="tooltip-text">$tooltip_rows</span>
             </div>
-        </td>
-        <td>{$error['datetime']}</br>{$error['map']}</br>{$error['quantity']} time(s)</td>
-        <td>
-            <pre>{$error['message']}</br>{$error['stack']}</pre>
         </td>
     </tr>    
     EOD;

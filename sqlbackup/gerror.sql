@@ -19,6 +19,14 @@
 CREATE DATABASE IF NOT EXISTS `gmoderror` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
 USE `gmoderror`;
 
+-- Copiando estrutura para tabela gmoderror.config
+CREATE TABLE IF NOT EXISTS `config` (
+  `key` varchar(50) NOT NULL,
+  `value` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Exportação de dados foi desmarcado.
+
 -- Copiando estrutura para tabela gmoderror.gm_construct_13_beta
 CREATE TABLE IF NOT EXISTS `gm_construct_13_beta` (
   `idx` int(11) NOT NULL AUTO_INCREMENT,
@@ -29,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `gm_construct_13_beta` (
   `message` varchar(255) NOT NULL,
   `stack` varchar(2000) NOT NULL,
   PRIMARY KEY (`idx`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Exportação de dados foi desmarcado.
 
