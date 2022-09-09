@@ -25,7 +25,10 @@ CREATE TABLE IF NOT EXISTS `config` (
   `value` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Exportação de dados foi desmarcado.
+-- Copiando dados para a tabela gmoderror.config: ~2 rows (aproximadamente)
+INSERT INTO `config` (`key`, `value`) VALUES
+	('auth', 'admin'),
+	('last_version_timestamp', '0');
 
 -- Copiando estrutura para tabela gmoderror.gm_construct_13_beta
 CREATE TABLE IF NOT EXISTS `gm_construct_13_beta` (
@@ -38,8 +41,6 @@ CREATE TABLE IF NOT EXISTS `gm_construct_13_beta` (
   `stack` varchar(2000) NOT NULL,
   PRIMARY KEY (`idx`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Exportação de dados foi desmarcado.
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
