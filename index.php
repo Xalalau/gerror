@@ -153,7 +153,7 @@ $html_header = <<<EOD
     </style>
 </head>
 <body>
-<span id="heading">Auto Reported Script Errors</span>
+<span id="heading">Script Errors Dock</span>
 $subheading
 </br>
 </br>
