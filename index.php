@@ -5,7 +5,7 @@ require "config/gerror.php";
 $addon = $_GET['addon'] ?? NULL;
 $auth = $_GET['auth'] ?? NULL;
 
-$result_tables = mysqli_query($CONNECTION, "SELECT table_name FROM information_schema.tables WHERE table_schema = 'gmoderror';");
+$result_tables = mysqli_query($CONNECTION, "SELECT table_name FROM information_schema.tables WHERE table_schema = '" . getenv('MYSQL_DATABASE') . "';");
 $tables = [];
 while($row = $result_tables->fetch_row()) {
     if ($row[0] != "config") {
