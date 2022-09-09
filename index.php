@@ -2,7 +2,7 @@
 require "general/header.php";
 require "config/gerror.php";
 
-$addon = $_GET['addon'] ?? NULL;
+$tableName = $_GET['addon'] ?? NULL;
 $auth = $_GET['auth'] ?? NULL;
 
 $result_tables = mysqli_query($CONNECTION, "SELECT table_name FROM information_schema.tables WHERE table_schema = '" . getenv('MYSQL_DATABASE') . "';");
@@ -13,8 +13,8 @@ while($row = $result_tables->fetch_row()) {
     }
 }
 
-if ( ! in_array($addon, $tables)) {
-    if ($addon == NULL) {
+if ( ! in_array($tableName, $tables)) {
+    if ($tableName == NULL) {
         echo "Select a registered addon:<br/><br/>";
     } else {
         echo "Unregistered addon! The current options are:<br/><br/>";
@@ -42,17 +42,17 @@ $auth_link = $valid_auth == true ? "&auth=$auth" : "";
 
 $other_addons = "";
 foreach($tables as $table) {
-    if ($table != $addon) {
+    if ($table != $tableName) {
         $other_addons .= "<a href='?addon=$table'>" . $table . "</a><br/>";
     }
 }
 
 if ($other_addons == "") {
-    $subheading = "<span id='subheading'><a href='?addon=$addon$auth_link'>$addon</a></span>";
+    $subheading = "<span id='subheading'><a href='?addon=$tableName$auth_link'>$tableName</a></span>";
 } else {
     $subheading = <<<EOD
     <div id="subheading-tooltip" class="tooltip">
-        <span id="subheading"><a href="?addon=$addon$auth_link">$addon</a></span>
+        <span id="subheading"><a href="?addon=$tableName$auth_link">$tableName</a></span>
         <span class="tooltip-text">$other_addons</span>
     </div>
     EOD;
@@ -62,7 +62,7 @@ $update_status = $_POST['update_status'] ?? NULL;
 if ($update_status != NULL && $valid_auth == true) {
     $idx = intval($_POST['idx']);
     if ($idx != 0) {
-        $update = SafeMysqliQuery($CONNECTION, "UPDATE " . $addon . " SET `status`=? WHERE `idx`=" . $idx, "i", $_POST['update_status']);
+        $update = SafeMysqliQuery($CONNECTION, "UPDATE " . $tableName . " SET `status`=? WHERE `idx`=" . $idx, "i", $_POST['update_status']);
     }
 }
 
@@ -151,7 +151,7 @@ $subheading
 EOD;
 echo $html_header;
 
-$result_errors = mysqli_query($CONNECTION, "SELECT * FROM $addon ORDER BY `datetime` DESC LIMIT 100");
+$result_errors = mysqli_query($CONNECTION, "SELECT * FROM $tableName ORDER BY `datetime` DESC LIMIT 100");
 
 if (mysqli_num_rows($result_errors) == 0) {
     echo "No errors registered. Break the addon to start.";
@@ -168,9 +168,9 @@ $status = [
     [ "Ignored"  , "79, 6, 86"  ] 
 ];
 
-function GetErrorTooltipRows($addon, $status, $auth, $auth_link, $valid_auth, $idx) {
+function GetErrorTooltipRows($tableName, $status, $auth, $auth_link, $valid_auth, $idx) {
     $disabled = $valid_auth == false ? "disabled=1" : "";
-    $tooltip_rows = "<form name='set_status' method='post' style='margin-block-end: 0;' action='/index.php?addon=$addon$auth_link'>";
+    $tooltip_rows = "<form name='set_status' method='post' style='margin-block-end: 0;' action='/index.php?addon=$tableName$auth_link'>";
     foreach($status as $key => $error_type) {
         $tooltip_rows .= "<div style='background-color: rgb({$error_type[1]}, 255);'><input $disabled type='radio' id='status-radio-{$key}-{$idx}' name='update_status' value='{$key}'><label for='status-radio-{$key}-{$idx}'>{$error_type[0]}</label></div>";
     }
@@ -190,7 +190,7 @@ echo $table_header;
 $odd = false;
 while ($error = mysqli_fetch_array($result_errors)) {
     $opacity = $odd ? 0.7 : 1;
-    $tooltip_rows = GetErrorTooltipRows($addon, $status, $auth, $auth_link, $valid_auth, $error['idx']);
+    $tooltip_rows = GetErrorTooltipRows($tableName, $status, $auth, $auth_link, $valid_auth, $error['idx']);
     $row = <<<EOD
     <tr style='background-color: rgba({$status[$error['status']][1]}, {$opacity});'>
         <td>{$error['datetime']} UTC</br>{$error['map']}</br>{$error['quantity']} time(s)</td>

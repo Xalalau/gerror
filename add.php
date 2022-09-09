@@ -3,7 +3,7 @@ require "general/header.php";
 require "config/gerror.php";
 
 function InsertError($CONNECTION, $error) {
-    $insert = SafeMysqliQuery($CONNECTION, "INSERT INTO " . $error['addon'] . " (`map`, `quantity`, `message`, `stack`) VALUES (?, ?, ?, ?)", "siss", $error['map'], $error['quantity'], $error['msg'], $error['stack']);
+    $insert = SafeMysqliQuery($CONNECTION, "INSERT INTO " . $error['tableName'] . " (`map`, `quantity`, `message`, `stack`) VALUES (?, ?, ?, ?)", "siss", $error['map'], $error['quantity'], $error['msg'], $error['stack']);
         
     if ($insert) {
         echo "Entry added";
@@ -23,7 +23,7 @@ function UpdateError($CONNECTION, $registered, $error) {
         return;
     }
 
-    $update = SafeMysqliQuery($CONNECTION, "UPDATE " . $error['addon'] . " SET `map`=?, `quantity`=$quantity, `message`=?, `stack`=? WHERE `idx`=" . $registered['idx'], "sss", $error['map'], $error['msg'], $error['stack']);
+    $update = SafeMysqliQuery($CONNECTION, "UPDATE " . $error['tableName'] . " SET `map`=?, `quantity`=$quantity, `message`=?, `stack`=? WHERE `idx`=" . $registered['idx'], "sss", $error['map'], $error['msg'], $error['stack']);
 
     if ($update) {
         echo "Entry updated";
@@ -52,7 +52,7 @@ function CheckLastVersionTimestamp($CONNECTION) {
 
 function Main($CONNECTION) {
     if ( ! (
-            isset($_POST['addon']) &&
+            ($_POST['addon'] ?? $_POST['sqlTable']) &&
             isset($_POST['msg']) &&
             isset($_POST['stack']) &&
             isset($_POST['map']) &&
@@ -64,21 +64,22 @@ function Main($CONNECTION) {
         return;
     }
 
+    $tableName = $_POST['addon'] ?? $_POST['sqlTable'];
     $tables = mysqli_query($CONNECTION, "SELECT `TABLE_NAME` FROM information_schema.TABLES WHERE `TABLE_SCHEMA`='" . getenv('MYSQL_DATABASE') . "'");
     while ($table = mysqli_fetch_array($tables)) {
-        if ($_POST['addon'] == $table[0]) {
-            $addon = $table[0];
+        if ($tableName == $table[0]) {
+            $found = $table[0];
             break;
         }
     }
 
-    if (! isset($addon)) {
-        echo "Invalid addon name";
+    if (! isset($found)) {
+        echo "Invalid table name";
         return;
     }
 
     $error = [
-        'addon' => $addon,
+        'tableName' => $tableName,
         'msg' => $_POST['msg'],
         'stack' => $_POST['stack'],
         'map' => $_POST['map'],
@@ -90,7 +91,7 @@ function Main($CONNECTION) {
         return;
     }
 
-    $registered = SafeMysqliQuery($CONNECTION, "SELECT * FROM " . $error['addon'] . " WHERE `message`=?", "s", $error['msg']);
+    $registered = SafeMysqliQuery($CONNECTION, "SELECT * FROM " . $error['tableName'] . " WHERE `message`=?", "s", $error['msg']);
     $registered_count = mysqli_num_rows($registered);
 
     if ($registered_count == 0) {
