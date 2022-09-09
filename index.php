@@ -38,6 +38,8 @@ if (isset($auth)) {
     }
 }
 
+$auth_link = $valid_auth == true ? "&auth=$auth" : "";
+
 $other_addons = "";
 foreach($tables as $table) {
     if ($table != $addon) {
@@ -46,11 +48,11 @@ foreach($tables as $table) {
 }
 
 if ($other_addons == "") {
-    $subheading = "<span id='subheading'>$addon</span>";
+    $subheading = "<span id='subheading'><a href='?addon=$addon$auth_link'>$addon</a></span>";
 } else {
     $subheading = <<<EOD
     <div id="subheading-tooltip" class="tooltip">
-        <span id="subheading">$addon</span>
+        <span id="subheading"><a href="?addon=$addon$auth_link">$addon</a></span>
         <span class="tooltip-text">$other_addons</span>
     </div>
     EOD;
@@ -97,6 +99,11 @@ $html_header = <<<EOD
             background-color: #5b7c00;
             padding: 5px 10px 5px 10px;
             border-radius: 8px;
+            margin-left: 5px;
+        }
+        #subheading a {
+            text-decoration: none;
+            color: #fff;
         }
         #subtitles {
             padding: 12px 0 7px 0;
@@ -137,7 +144,7 @@ $html_header = <<<EOD
     </style>
 </head>
 <body>
-<span id="heading">Auto Reported Script Errors </span>
+<span id="heading">Auto Reported Script Errors</span>
 $subheading
 </br>
 </br>
@@ -161,9 +168,8 @@ $status = [
     [ "Ignored"  , "79, 6, 86"  ] 
 ];
 
-function GetErrorTooltipRows($addon, $status, $auth, $valid_auth, $idx) {
+function GetErrorTooltipRows($addon, $status, $auth, $auth_link, $valid_auth, $idx) {
     $disabled = $valid_auth == false ? "disabled=1" : "";
-    $auth_link = $valid_auth == true ? "&auth=$auth" : "";
     $tooltip_rows = "<form name='set_status' method='post' style='margin-block-end: 0;' action='/index.php?addon=$addon$auth_link'>";
     foreach($status as $key => $error_type) {
         $tooltip_rows .= "<div style='background-color: rgb({$error_type[1]}, 255);'><input $disabled type='radio' id='status-radio-{$key}-{$idx}' name='update_status' value='{$key}'><label for='status-radio-{$key}-{$idx}'>{$error_type[0]}</label></div>";
@@ -184,7 +190,7 @@ echo $table_header;
 $odd = false;
 while ($error = mysqli_fetch_array($result_errors)) {
     $opacity = $odd ? 0.7 : 1;
-    $tooltip_rows = GetErrorTooltipRows($addon, $status, $auth, $valid_auth, $error['idx']);
+    $tooltip_rows = GetErrorTooltipRows($addon, $status, $auth, $auth_link, $valid_auth, $error['idx']);
     $row = <<<EOD
     <tr style='background-color: rgba({$status[$error['status']][1]}, {$opacity});'>
         <td>{$error['datetime']}</br>{$error['map']}</br>{$error['quantity']} time(s)</td>
