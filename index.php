@@ -122,8 +122,8 @@ $html_header = <<<EOD
             padding: 5px;
             position: absolute;
             z-index: 1;
-            top: -67px;
             left: 102%;
+            top: -5px;
         }
         .tooltip:hover .tooltip-text {
             visibility: visible;
@@ -140,6 +140,9 @@ $html_header = <<<EOD
             color: #fff;
             font-size: 1.5em;
             font-weight: bold;
+        }
+        .tooltip .row-tooltip {
+            top: -67px;
         }
     </style>
 </head>
@@ -200,7 +203,7 @@ while ($error = mysqli_fetch_array($result_errors)) {
         <td>
             <div class="tooltip">
                 {$status[$error['status']][0]}
-                <span class="tooltip-text">$tooltip_rows</span>
+                <span class="tooltip-text row-tooltip">$tooltip_rows</span>
             </div>
         </td>
     </tr>    
