@@ -32,21 +32,30 @@ function UpdateError($CONNECTION, $registered, $error) {
     }
 }
 
-function CheckLastVersionTimestamp($CONNECTION) {
-    $version_timestamp = DateTime::createFromFormat('U', $_POST['versionDate']);
-    $last_version_timestamp = mysqli_fetch_row(mysqli_query($CONNECTION, "SELECT `value` FROM config WHERE `key` = 'last_version_timestamp'"));
-    $last_version_timestamp = DateTime::createFromFormat('U', $last_version_timestamp[0]);
-    $now_timestamp = new DateTime();
+function CheckLastVersionTimestamp($CONNECTION, $error) {
+    $keyName = $error['tableName'] . "_version_timestamp";
+    $version_datetime = DateTime::createFromFormat('U', $_POST['versionDate']);
+    $result_last_version_timestamp = mysqli_fetch_row(SafeMysqliQuery($CONNECTION, "SELECT `value` FROM config WHERE `key`=?", "s", $keyName));
 
-    if ($version_timestamp < $last_version_timestamp) {
-        return false;
-    } elseif ($version_timestamp > $last_version_timestamp && $version_timestamp < $now_timestamp) {
-        SafeMysqliQuery($CONNECTION, "UPDATE config SET `value`=? WHERE `key`='last_version_timestamp'", "s", strtotime($version_timestamp->format('Y-m-d H:i:s')));
-        return true;
-    } elseif ($version_timestamp == $last_version_timestamp) {
+    if (! $result_last_version_timestamp) {
+        $version_timestamp = strtotime($version_datetime->format('Y-m-d H:i:s'));
+        SafeMysqliQuery($CONNECTION, "INSERT INTO config (`key`, `value`) VALUES (?, '$version_timestamp')", "s", $keyName);
         return true;
     } else {
-        return false;
+        $last_version_datetime = DateTime::createFromFormat('U', $result_last_version_timestamp[0]);
+        $now_datetime = new DateTime();
+
+        if ($version_datetime < $last_version_datetime) {
+            return false;
+        } elseif ($version_datetime > $last_version_datetime && $version_datetime < $now_datetime) {
+            $version_timestamp = strtotime($version_datetime->format('Y-m-d H:i:s'));
+            SafeMysqliQuery($CONNECTION, "UPDATE config SET `value`=? WHERE `key`=?", "ss", $version_timestamp, $keyName);
+            return true;
+        } elseif ($version_datetime == $last_version_datetime) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 
@@ -86,7 +95,7 @@ function Main($CONNECTION) {
         'quantity' => $_POST['quantity']
     ];
 
-    if (CheckLastVersionTimestamp($CONNECTION) == false) {
+    if (CheckLastVersionTimestamp($CONNECTION, $error) == false) {
         echo "Unsupported version, error ignored";
         return;
     }

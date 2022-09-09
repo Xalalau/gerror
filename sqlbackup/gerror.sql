@@ -28,7 +28,6 @@ CREATE TABLE IF NOT EXISTS `config` (
 -- Copiando dados para a tabela gmoderror.config: ~2 rows (aproximadamente)
 INSERT INTO `config` (`key`, `value`) VALUES
 	('auth', 'admin'),
-	('last_version_timestamp', '0');
 
 -- Copiando estrutura para tabela gmoderror.gm_construct_13_beta
 CREATE TABLE IF NOT EXISTS `gm_construct_13_beta` (
