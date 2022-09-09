@@ -99,7 +99,7 @@ $html_header = <<<EOD
             background-color: #5b7c00;
             padding: 5px 10px 5px 10px;
             border-radius: 8px;
-            margin-left: 5px;
+            margin-left: 15px;
         }
         #subheading a {
             text-decoration: none;
@@ -111,7 +111,7 @@ $html_header = <<<EOD
         .tooltip {
             position: relative;
             display: inline-block;
-            border-bottom: 1px dotted black;
+            border-bottom: 1px solid black;
         }
         .tooltip .tooltip-text {
             visibility: hidden;
@@ -131,7 +131,7 @@ $html_header = <<<EOD
         #subheading-tooltip .tooltip-text {
             text-align: center;
             left: 100%;
-            background-color: #2a3b01;
+            background-color: #244c7a;
             border-radius: 8px;
             padding: 5px 10px 5px 10px;
         }
@@ -143,6 +143,12 @@ $html_header = <<<EOD
         }
         .tooltip .row-tooltip {
             top: -67px;
+        }
+        .row-set-button {
+            width: 100%;
+            margin-top: 5px;
+            font-weight: bold;
+            font-size: 1.0em;
         }
     </style>
 </head>
@@ -177,7 +183,7 @@ function GetErrorTooltipRows($tableName, $status, $auth, $auth_link, $valid_auth
     foreach($status as $key => $error_type) {
         $tooltip_rows .= "<div style='background-color: rgb({$error_type[1]}, 255);'><input $disabled type='radio' id='status-radio-{$key}-{$idx}' name='update_status' value='{$key}'><label for='status-radio-{$key}-{$idx}'>{$error_type[0]}</label></div>";
     }
-    $tooltip_rows .= "<input type='hidden' name='idx' value='$idx'\><input $disabled type='submit' style='width: 100%; margin-top: 5px;' value='Submit'></form>";
+    $tooltip_rows .= "<input type='hidden' name='idx' value='$idx'\><input $disabled type='submit' class='row-set-button' value='Submit'></form>";
     return $tooltip_rows;
 }
 
