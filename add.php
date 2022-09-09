@@ -32,8 +32,34 @@ function UpdateError($CONNECTION, $registered, $error) {
     }
 }
 
+function CheckLastVersionTimestamp($CONNECTION) {
+    $version_timestamp = DateTime::createFromFormat('U', $_POST['versionDate']);
+    $last_version_timestamp = mysqli_fetch_row(mysqli_query($CONNECTION, "SELECT `value` FROM config WHERE `key` = 'last_version_timestamp'"));
+    $last_version_timestamp = DateTime::createFromFormat('U', $last_version_timestamp[0]);
+    $now_timestamp = new DateTime();
+
+    if ($version_timestamp < $last_version_timestamp) {
+        return false;
+    } elseif ($version_timestamp > $last_version_timestamp && $version_timestamp < $now_timestamp) {
+        SafeMysqliQuery($CONNECTION, "UPDATE config SET `value`=? WHERE `key`='last_version_timestamp'", "s", strtotime($version_timestamp->format('Y-m-d H:i:s')));
+        return true;
+    } elseif ($version_timestamp == $last_version_timestamp) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 function Main($CONNECTION) {
-    if ( ! (isset($_POST['addon']) && isset($_POST['msg']) && isset($_POST['stack']) && isset($_POST['map']) && isset($_POST['quantity']))) {
+    if ( ! (
+            isset($_POST['addon']) &&
+            isset($_POST['msg']) &&
+            isset($_POST['stack']) &&
+            isset($_POST['map']) &&
+            isset($_POST['quantity']) &&
+            isset($_POST['versionDate'])
+            )
+        ) {
         echo "Missing fields";
         return;
     }
@@ -58,6 +84,11 @@ function Main($CONNECTION) {
         'map' => $_POST['map'],
         'quantity' => $_POST['quantity']
     ];
+
+    if (CheckLastVersionTimestamp($CONNECTION) == false) {
+        echo "Unsupported version, error ignored";
+        return;
+    }
 
     $registered = SafeMysqliQuery($CONNECTION, "SELECT * FROM " . $error['addon'] . " WHERE `message`=?", "s", $error['msg']);
     $registered_count = mysqli_num_rows($registered);
