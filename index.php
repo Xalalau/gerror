@@ -193,6 +193,11 @@ $table_header = <<<EOD
 <th>info</th>
 <th>error</th>
 <th>status</th>
+<th>
+    <a target='_blank' href='https://github.com/Xalalau/gerror'>
+        <img width='25px' alt='GitHub' src='resources/github.png'\>
+    </a>
+</th>
 </tr>
 EOD;
 echo $table_header;
