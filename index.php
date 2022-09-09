@@ -193,7 +193,7 @@ while ($error = mysqli_fetch_array($result_errors)) {
     $tooltip_rows = GetErrorTooltipRows($addon, $status, $auth, $auth_link, $valid_auth, $error['idx']);
     $row = <<<EOD
     <tr style='background-color: rgba({$status[$error['status']][1]}, {$opacity});'>
-        <td>{$error['datetime']}</br>{$error['map']}</br>{$error['quantity']} time(s)</td>
+        <td>{$error['datetime']} UTC</br>{$error['map']}</br>{$error['quantity']} time(s)</td>
         <td>
             <pre>{$error['message']}</br>{$error['stack']}</pre>
         </td>
