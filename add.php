@@ -15,6 +15,8 @@ function InsertError($CONNECTION, $error) {
 function UpdateError($CONNECTION, $registered, $error) {
     $registered = mysqli_fetch_assoc($registered);
     $quantity = $registered["quantity"] + $error['quantity'];
+
+    /*
     $status = $registered["status"];
 
     // Only to-do, critical and fixed can be updated
@@ -22,6 +24,7 @@ function UpdateError($CONNECTION, $registered, $error) {
         echo "Update ignored due to registered error status";
         return;
     }
+    */
 
     $update = SafeMysqliQuery($CONNECTION, "UPDATE " . $error['tableName'] . " SET `map`=?, `quantity`=$quantity, `message`=?, `stack`=? WHERE `idx`=" . $registered['idx'], "sss", $error['map'], $error['msg'], $error['stack']);
 
