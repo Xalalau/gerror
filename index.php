@@ -102,7 +102,6 @@ $html_header = <<<EOD
             margin-left: 15px;
         }
         #subheading a {
-            text-decoration: none;
             color: #fff;
         }
         #subtitles {
@@ -111,7 +110,7 @@ $html_header = <<<EOD
         .tooltip {
             position: relative;
             display: inline-block;
-            border-bottom: 1px solid black;
+            text-decoration: underline;
         }
         .tooltip .tooltip-text {
             visibility: hidden;
@@ -127,6 +126,9 @@ $html_header = <<<EOD
         }
         .tooltip:hover .tooltip-text {
             visibility: visible;
+        }
+        #subheading-tooltip, #subheading-tooltip a {
+            text-decoration: none;
         }
         #subheading-tooltip .tooltip-text {
             text-align: center;
