@@ -43,7 +43,7 @@ $auth_link = $valid_auth == true ? "&auth=$auth" : "";
 $other_addons = "";
 foreach($tables as $table) {
     if ($table != $tableName) {
-        $other_addons .= "<a href='?addon=$table'>" . $table . "</a><br/>";
+        $other_addons .= "<a href='?addon=$table$auth_link'>" . $table . "</a><br/>";
     }
 }
 
