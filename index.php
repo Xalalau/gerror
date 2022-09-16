@@ -58,6 +58,9 @@ if ($other_addons == "") {
     EOD;
 }
 
+
+
+
 $update_status = $_POST['update_status'] ?? NULL;
 if ($update_status != NULL && $valid_auth == true) {
     $idx = intval($_POST['idx']);
@@ -65,6 +68,9 @@ if ($update_status != NULL && $valid_auth == true) {
         $update = SafeMysqliQuery($CONNECTION, "UPDATE " . $tableName . " SET `status`=? WHERE `idx`=" . $idx, "i", $_POST['update_status']);
     }
 }
+
+
+
 
 $html_header = <<<EOD
 <html xmlns='http://www.w3.org/1999/xhtml' lang='en' xml:lang='en'>
@@ -155,7 +161,7 @@ $html_header = <<<EOD
     </style>
 </head>
 <body>
-<span id="heading">Script Errors Dock</span>
+<span id="heading">Script Error Dock</span>
 $subheading
 </br>
 </br>
