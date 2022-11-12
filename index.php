@@ -168,7 +168,7 @@ $subheading
 EOD;
 echo $html_header;
 
-$result_errors = mysqli_query($CONNECTION, "SELECT * FROM $tableName ORDER BY `datetime` DESC LIMIT 100");
+$result_errors = mysqli_query($CONNECTION, "SELECT * FROM $tableName ORDER BY `datetime` DESC LIMIT 200");
 
 if (mysqli_num_rows($result_errors) == 0) {
     echo "No errors registered. Break the addon to start.";
