@@ -64,7 +64,7 @@ function CheckLastVersionTimestamp($CONNECTION, $error) {
 
 function Main($CONNECTION) {
     if ( ! (
-            ($_POST['addon'] ?? $_POST['sqlTable']) &&
+            ($_POST['addon'] ?? $_POST['databaseName']) &&
             isset($_POST['msg']) &&
             isset($_POST['stack']) &&
             isset($_POST['map']) &&
@@ -76,7 +76,7 @@ function Main($CONNECTION) {
         return;
     }
 
-    $tableName = $_POST['addon'] ?? $_POST['sqlTable'];
+    $tableName = $_POST['addon'] ?? $_POST['databaseName'];
     $tables = mysqli_query($CONNECTION, "SELECT `TABLE_NAME` FROM information_schema.TABLES WHERE `TABLE_SCHEMA`='" . getenv('MYSQL_DATABASE') . "'");
     while ($table = mysqli_fetch_array($tables)) {
         if ($tableName == $table[0]) {
