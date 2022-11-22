@@ -161,7 +161,7 @@ $html_header = <<<EOD
     </style>
 </head>
 <body>
-<span id="heading">Script Error Dock</span>
+<span id="heading">Script Error Deck</span>
 $subheading
 </br>
 </br>
