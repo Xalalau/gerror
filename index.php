@@ -135,6 +135,12 @@ $html_header = <<<EOD
         }
         #subheading-tooltip, #subheading-tooltip a {
             text-decoration: none;
+            padding: 0px 4px 0px 4px;
+        }
+        #subheading-tooltip .tooltip-text a:hover {
+            background-color: #315f95;
+            border-radius: 8px;
+            padding: 0px 4px 0px 4px;
         }
         #subheading-tooltip .tooltip-text {
             text-align: center;
