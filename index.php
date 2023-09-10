@@ -248,16 +248,105 @@ function RenderPage($CONNECTION, $status_colors) {
     EOD;
 }
 
-$status_colors = [
-    [ "TO-DO"    , "36, 39, 41" ],
-    [ "Critical" , "76, 0, 0"   ],
-    [ "Fixed"    , "6, 58, 16"  ],
-    [ "Wont Fix" , "74, 47, 16" ],
-    [ "Unrelated", "16, 24, 74" ],
-    [ "Ignored"  , "79, 6, 86"  ] 
-];
+function AjaxUpdateStatus($CONNECTION, $table_name, $idx, $update_status) {
+    if ($table_name != NULL && $idx != 0 && $update_status != NULL) {
+        $update = SafeMysqliQuery($CONNECTION, "UPDATE " . $table_name . " SET `status`=? WHERE `idx`=" . $idx, "i", $update_status);
+ 
+        if ($update) {
+            echo "Entry updated";
+        } else {
+            echo "Failed to update entry";
+        }
+    } else {
+        echo "Invalid POST fields";
+    }
+}
 
-RenderPage($CONNECTION, $status_colors);
+function ReceiveAjax($CONNECTION) {
+    $table_name = $_POST['addon'] ?? NULL;
+    $auth = $_POST['auth'] ?? NULL;
+
+    ValidateAddon($CONNECTION, $table_name);
+    $valid_auth = ValidateAuth($CONNECTION, $auth);
+
+    $idx = intval($_POST['idx'] ?? 0);
+    $update_status = $_POST['update_status'] ?? NULL;
+
+    if ($valid_auth == false) {
+        echo "Invalid authentication!";
+        require "general/finish.php";
+    }
+
+    match ($_POST['ajax']) {
+        'update_status' => AjaxUpdateStatus($CONNECTION, $table_name, $idx, $update_status)
+    };
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    ReceiveAjax($CONNECTION);
+} else {
+    $status_colors = [
+        [ "TO-DO"    , "36, 39, 41" ],
+        [ "Critical" , "76, 0, 0"   ],
+        [ "Fixed"    , "6, 58, 16"  ],
+        [ "Wont Fix" , "74, 47, 16" ],
+        [ "Unrelated", "16, 24, 74" ],
+        [ "Ignored"  , "79, 6, 86"  ] 
+    ];
+
+    RenderPage($CONNECTION, $status_colors);
+    ?>
+
+    <script>
+        let status_colors = [
+            <?php foreach ($status_colors as $status_color) { echo "'" . $status_color[1] . "',"; } ?>
+        
+        ];
+
+        function UpdateErrorRow(idx, update_status) {
+            $('#row-' + idx).css({ 'background-color' : 'rgba(' + status_colors[update_status] + ')' });
+        }
+
+        $('.set_status').submit(function (e) {
+            e.preventDefault();
+
+            let idx = -1;
+            let update_status = -1;
+            let form = $(this)[0];
+            for (i = 0; i < form.length; i++) {
+                if (form[i].type == "radio" && form[i].checked) {
+                    update_status = form[i].value;
+                }
+
+                if (form[i].type == "hidden" && form[i].name == "idx") {
+                    idx = form[i].value;
+                }
+
+                if (update_status != -1 && idx != -1) {
+                    break;
+                }
+            }
+
+            if (update_status != -1 && idx != -1) {
+                $.post("",
+                {
+                    ajax: 'update_status',
+                    addon: '<?= $_GET['addon'] ?? '' ?>',
+                    auth: '<?= $_GET['auth'] ?? '' ?>',
+                    idx: idx,
+                    update_status: update_status
+                },
+                function(data, status){
+                    UpdateErrorRow(idx, update_status);
+                });
+            } else {
+                console.error("Failed to select values from field.");
+            }
+        });
+    </script>
+
+    <?php
+}
 
 require "general/finish.php";
 ?>
