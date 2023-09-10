@@ -1,6 +1,6 @@
 <?php
-require "general/header.php";
-require "config/gerror.php";
+require "general/start.php";
+require "config/db.php";
 
 function InsertError($CONNECTION, $error) {
     $insert = SafeMysqliQuery($CONNECTION, "INSERT INTO " . $error['tableName'] . " (`map`, `quantity`, `message`, `stack`) VALUES (?, ?, ?, ?)", "siss", $error['map'], $error['quantity'], $error['msg'], $error['stack']);
@@ -115,5 +115,5 @@ function Main($CONNECTION) {
 
 Main($CONNECTION);
 
-require "general/footer.php";
+require "general/finish.php";
 ?>
