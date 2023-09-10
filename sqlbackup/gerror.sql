@@ -32,7 +32,7 @@ INSERT INTO `config` (`key`, `value`) VALUES
 -- Copiando estrutura para tabela gmoderror.gm_construct_13_beta
 CREATE TABLE IF NOT EXISTS `gm_construct_13_beta` (
   `idx` int(11) NOT NULL AUTO_INCREMENT,
-  `datetime` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `datetime` datetime NOT NULL,
   `status` tinyint(4) NOT NULL DEFAULT 0,
   `map` varchar(255) NOT NULL,
   `quantity` int(11) NOT NULL,

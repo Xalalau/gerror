@@ -2,8 +2,16 @@
 require "general/start.php";
 require "config/db.php";
 
+function GetErrorDate() {
+    date_default_timezone_set('UTC');
+
+    $date = new DateTimeImmutable();
+
+    return $date->format('Y-m-d H:i:s');
+}
+
 function InsertError($CONNECTION, $error) {
-    $insert = SafeMysqliQuery($CONNECTION, "INSERT INTO " . $error['tableName'] . " (`map`, `quantity`, `message`, `stack`) VALUES (?, ?, ?, ?)", "siss", $error['map'], $error['quantity'], $error['msg'], $error['stack']);
+    $insert = SafeMysqliQuery($CONNECTION, "INSERT INTO " . $error['tableName'] . " (`datetime`, `map`, `quantity`, `message`, `stack`) VALUES (?, ?, ?, ?, ?)", "ssiss", GetErrorDate(), $error['map'], $error['quantity'], $error['msg'], $error['stack']);
         
     if ($insert) {
         echo "Entry added";
@@ -26,7 +34,7 @@ function UpdateError($CONNECTION, $registered, $error) {
     }
     */
 
-    $update = SafeMysqliQuery($CONNECTION, "UPDATE " . $error['tableName'] . " SET `map`=?, `quantity`=$quantity, `message`=?, `stack`=? WHERE `idx`=" . $registered['idx'], "sss", $error['map'], $error['msg'], $error['stack']);
+    $update = SafeMysqliQuery($CONNECTION, "UPDATE " . $error['tableName'] . " SET `datetime`=?, `map`=?, `quantity`=$quantity, `message`=?, `stack`=? WHERE `idx`=" . $registered['idx'], "ssss", GetErrorDate(), $error['map'], $error['msg'], $error['stack']);
 
     if ($update) {
         echo "Entry updated";
