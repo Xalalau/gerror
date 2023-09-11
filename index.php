@@ -207,7 +207,7 @@ function GetErrorTable($CONNECTION, $table_name, $auth, $auth_link, $valid_auth,
             </td>
             <td>
                 <div class="tooltip">
-                    {$status_colors[$error['status']][0]}
+                    <span id='row-$idx-status'>{$status_colors[$error['status']][0]}</span>
                     <span class="tooltip-text row-tooltip">$tooltip_rows</span>
                 </div>
             </td>
@@ -302,12 +302,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <script>
         let status_colors = [
-            <?php foreach ($status_colors as $status_color) { echo "'" . $status_color[1] . "',"; } ?>
+            <?php foreach ($status_colors as $status_color) { echo "{ 'color' : '" . $status_color[1] . "', 'status' : '" . $status_color[0] . "' },"; } ?>
         
         ];
 
         function UpdateErrorRow(idx, update_status) {
-            $('#row-' + idx).css({ 'background-color' : 'rgba(' + status_colors[update_status] + ')' });
+            $('#row-' + idx).css({ 'background-color' : 'rgba(' + status_colors[update_status]['color'] + ')' });
+            $('#row-' + idx + '-status').html(status_colors[update_status]['status']);
         }
 
         $('.set_status').submit(function (e) {
