@@ -79,6 +79,9 @@ function GetHeader() {
             }
             #errors-table {
             }
+            #errors-table pre {
+                text-wrap: wrap;
+            }
             #errors-th {
                 background-color: #000;
             }
@@ -173,14 +176,14 @@ function GetErrorTable($CONNECTION, $table_name, $auth, $auth_link, $valid_auth,
     $error_table .= <<<EOD
     <table id="errors-table">
     <tr id='errors-th'>
-    <th>info</th>
-    <th>error</th>
-    <th>status</th>
-    <th>
-        <a target='_blank' href='https://github.com/Xalalau/gerror'>
-            <img width='25px' alt='GitHub' src='resource/github.png'\>
-        </a>
-    </th>
+        <th>info</th>
+        <th>error</th>
+        <th>status</th>
+        <th>
+            <a target='_blank' href='https://github.com/Xalalau/gerror'>
+                <img width='25px' alt='GitHub' src='resource/github.png'\>
+            </a>
+        </th>
     </tr>
     EOD;
 
