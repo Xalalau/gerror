@@ -47,11 +47,6 @@ function GetAddonsList($CONNECTION, $addon_tables, $auth_link) {
 function GetErrorData($CONNECTION, $table_name) {
     $err_query_arr = mysqli_query($CONNECTION, "SELECT * FROM $table_name ORDER BY `datetime` DESC LIMIT 300");
 
-    if (mysqli_num_rows($err_query_arr) == 0) {
-        echo "No errors registered. Break the addon to start.";
-        require "general/finish.php";
-    }
-
     return $err_query_arr;
 }
 
@@ -310,67 +305,73 @@ td, th {
     </div>
 </div>
 <table id="errors-table">
-<tr id='errors-th'>
-    <th></th>
-    <th>Info</th>
-    <th>Error</th>
-    <th>Status</th>
-</tr>
 <?php
-$odd = false;
-while ($error = mysqli_fetch_array($err_query_arr)) {
-    $opacity = $odd ? 'odd-opacity' : 'even-opacity';
-    $row_class= $odd ? 'row-odd' : 'row-even';
-
-    $idx = $error['idx'];
-
-    $disabled = $valid_auth == false ? "disabled=1" : "";
-
-    if ($error['is_server'] == 1 && $error['is_client'] == 1) {
-        $realm_img = "assets/images/shared.png";
-    } elseif ($error['is_server'] == 1) {
-        $realm_img = "assets/images/server.png";
-    } elseif ($error['is_client'] == 1) {
-        $realm_img = "assets/images/client.png";
-    } else {
-        $realm_img = "assets/images/empty.png";
-    }
-
-    echo <<<EOD
-    <tr id='row-$idx' class='$row_class' style='background-color: rgba({$status_colors[$error['status']][1]}, var(--{$opacity}));'>
-        <td><img alt='realm' src='$realm_img'/></td>
-        <td>{$error['datetime']} UTC</br>{$error['map']}</br>{$error['quantity']} time(s)</td>
-        <td>
-            <pre>{$error['message']}</br>{$error['stack']}</pre>
-        </td>
-        <td>
-            <div class="tooltip">
-                <span id='row-$idx-status'>{$status_colors[$error['status']][0]}</span>
-                <span class="tooltip-text row-tooltip">
-                    <form class='status-form' name='status-form'>
-    EOD;
-                        foreach($status_colors as $key => $error_type) {
-                            $checked = $error['status'] == $key ? 'checked' : '';
-
-                            echo 
-                            "<div style='background-color: rgb({$error_type[1]}, 255);'>
-                                <input $disabled type='radio' id='status-radio-{$key}-{$idx}' name='update_status' value='{$key}' $checked>
-                                <label for='status-radio-{$key}-{$idx}'>
-                                    {$error_type[0]}
-                                </label>
-                            </div>";
-                        }
-    echo <<<EOD
-                        <input type='hidden' name='idx' value='$idx'\>
-                        <input $disabled type='submit' class='row-set-button' value='Submit'>
-                    </form>
-                </span>
-            </div>
-        </td>
+if (mysqli_num_rows($err_query_arr) == 0) {
+    echo "No errors registered. Break the addon to start.";
+} else {
+    ?>
+    <tr id='errors-th'>
+        <th></th>
+        <th>Info</th>
+        <th>Error</th>
+        <th>Status</th>
     </tr>
-    EOD;
+    <?php
+    $odd = false;
+    while ($error = mysqli_fetch_array($err_query_arr)) {
+        $opacity = $odd ? 'odd-opacity' : 'even-opacity';
+        $row_class= $odd ? 'row-odd' : 'row-even';
 
-    $odd = !$odd;
+        $idx = $error['idx'];
+
+        $disabled = $valid_auth == false ? "disabled=1" : "";
+
+        if ($error['is_server'] == 1 && $error['is_client'] == 1) {
+            $realm_img = "assets/images/shared.png";
+        } elseif ($error['is_server'] == 1) {
+            $realm_img = "assets/images/server.png";
+        } elseif ($error['is_client'] == 1) {
+            $realm_img = "assets/images/client.png";
+        } else {
+            $realm_img = "assets/images/empty.png";
+        }
+
+        echo <<<EOD
+        <tr id='row-$idx' class='$row_class' style='background-color: rgba({$status_colors[$error['status']][1]}, var(--{$opacity}));'>
+            <td><img alt='realm' src='$realm_img'/></td>
+            <td>{$error['datetime']} UTC</br>{$error['map']}</br>{$error['quantity']} time(s)</td>
+            <td>
+                <pre>{$error['message']}</br>{$error['stack']}</pre>
+            </td>
+            <td>
+                <div class="tooltip">
+                    <span id='row-$idx-status'>{$status_colors[$error['status']][0]}</span>
+                    <span class="tooltip-text row-tooltip">
+                        <form class='status-form' name='status-form'>
+        EOD;
+                            foreach($status_colors as $key => $error_type) {
+                                $checked = $error['status'] == $key ? 'checked' : '';
+
+                                echo 
+                                "<div style='background-color: rgb({$error_type[1]}, 255);'>
+                                    <input $disabled type='radio' id='status-radio-{$key}-{$idx}' name='update_status' value='{$key}' $checked>
+                                    <label for='status-radio-{$key}-{$idx}'>
+                                        {$error_type[0]}
+                                    </label>
+                                </div>";
+                            }
+        echo <<<EOD
+                            <input type='hidden' name='idx' value='$idx'\>
+                            <input $disabled type='submit' class='row-set-button' value='Submit'>
+                        </form>
+                    </span>
+                </div>
+            </td>
+        </tr>
+        EOD;
+
+        $odd = !$odd;
+    }
 }
 ?>
 <script>
