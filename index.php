@@ -330,8 +330,10 @@ while ($error = mysqli_fetch_array($err_query_arr)) {
         $realm_img = "assets/images/shared.png";
     } elseif ($error['is_server'] == 1) {
         $realm_img = "assets/images/server.png";
-    } else {
+    } elseif ($error['is_client'] == 1) {
         $realm_img = "assets/images/client.png";
+    } else {
+        $realm_img = "assets/images/empty.png";
     }
 
     echo <<<EOD
