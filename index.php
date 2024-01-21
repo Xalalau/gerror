@@ -291,7 +291,7 @@ td, th {
     <span id="header-text">Script Error Deck</span>
 
     <a id="gitbug-link" target='_blank' href='https://github.com/Xalalau/gerror'>
-        <img alt='GitHub' src='resource/github.png'\>
+        <img alt='GitHub' src='assets/images/github.png'\>
     </a>
 
     <div>
