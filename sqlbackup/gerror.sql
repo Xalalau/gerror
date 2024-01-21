@@ -14,26 +14,23 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-
--- Copiando estrutura do banco de dados para gmoderror
 CREATE DATABASE IF NOT EXISTS `gmoderror` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
 USE `gmoderror`;
 
--- Copiando estrutura para tabela gmoderror.config
 CREATE TABLE IF NOT EXISTS `config` (
   `key` varchar(50) NOT NULL,
   `value` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Copiando dados para a tabela gmoderror.config: ~2 rows (aproximadamente)
 INSERT INTO `config` (`key`, `value`) VALUES
 	('auth', 'admin'),
 
--- Copiando estrutura para tabela gmoderror.gm_construct_13_beta
 CREATE TABLE IF NOT EXISTS `gm_construct_13_beta` (
   `idx` int(11) NOT NULL AUTO_INCREMENT,
   `datetime` datetime NOT NULL,
   `status` tinyint(4) NOT NULL DEFAULT 0,
+  `is_server` tinyint(4) NOT NULL DEFAULT 0,
+  `is_client` tinyint(4) NOT NULL DEFAULT 0,
   `map` varchar(255) NOT NULL,
   `quantity` int(11) NOT NULL,
   `message` varchar(255) NOT NULL,

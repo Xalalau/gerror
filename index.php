@@ -311,9 +311,10 @@ td, th {
 </div>
 <table id="errors-table">
 <tr id='errors-th'>
-    <th>info</th>
-    <th>error</th>
-    <th>status</th>
+    <th></th>
+    <th>Info</th>
+    <th>Error</th>
+    <th>Status</th>
 </tr>
 <?php
 $odd = false;
@@ -325,8 +326,17 @@ while ($error = mysqli_fetch_array($err_query_arr)) {
 
     $disabled = $valid_auth == false ? "disabled=1" : "";
 
+    if ($error['is_server'] == 1 && $error['is_client'] == 1) {
+        $realm_img = "assets/images/shared.png";
+    } elseif ($error['is_server'] == 1) {
+        $realm_img = "assets/images/server.png";
+    } else {
+        $realm_img = "assets/images/client.png";
+    }
+
     echo <<<EOD
     <tr id='row-$idx' class='$row_class' style='background-color: rgba({$status_colors[$error['status']][1]}, var(--{$opacity}));'>
+        <td><img alt='realm' src='$realm_img'/></td>
         <td>{$error['datetime']} UTC</br>{$error['map']}</br>{$error['quantity']} time(s)</td>
         <td>
             <pre>{$error['message']}</br>{$error['stack']}</pre>

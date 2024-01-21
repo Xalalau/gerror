@@ -11,8 +11,20 @@ function GetErrorDate() {
 }
 
 function InsertError($CONNECTION, $error) {
-    $insert = SafeMysqliQuery($CONNECTION, "INSERT INTO " . $error['tableName'] . " (`datetime`, `map`, `quantity`, `message`, `stack`) VALUES (?, ?, ?, ?, ?)", "ssiss", GetErrorDate(), $error['map'], $error['quantity'], $error['msg'], $error['stack']);
-        
+    $is_server = $error['realm'] == "SERVER" ? 1 : 0;
+    $is_client = $error['realm'] == "CLIENT" ? 1 : 0;
+
+    $insert = SafeMysqliQuery(
+        $CONNECTION,
+        "INSERT INTO " . $error['tableName'] . " (`datetime`, `map`, `quantity`, `message`, `stack`, `is_server`, `is_client`) VALUES (?, ?, ?, ?, ?, $is_server, $is_client)",
+        "ssiss",
+        GetErrorDate(),
+        $error['map'],
+        $error['quantity'],
+        $error['msg'],
+        $error['stack']
+    );
+
     if ($insert) {
         echo "Entry added";
     } else {
@@ -24,17 +36,38 @@ function UpdateError($CONNECTION, $registered, $error) {
     $registered = mysqli_fetch_assoc($registered);
     $quantity = $registered["quantity"] + $error['quantity'];
 
-    /*
+    $is_server = $registered['is_server'];
+    $is_client = $registered['is_client'];
+
     $status = $registered["status"];
 
-    // Only to-do, critical and fixed can be updated
-    if ($status > 2) {
-        echo "Update ignored due to registered error status";
-        return;
+    if ($status == 0 && $quantity >= 500) {
+        $status = 1; // 'TO-DO' turns into 'Critical'
     }
-    */
 
-    $update = SafeMysqliQuery($CONNECTION, "UPDATE " . $error['tableName'] . " SET `datetime`=?, `map`=?, `quantity`=$quantity, `message`=?, `stack`=? WHERE `idx`=" . $registered['idx'], "ssss", GetErrorDate(), $error['map'], $error['msg'], $error['stack']);
+    if ($is_server == 0 && $error['realm'] == "SERVER") {
+        $is_server = 1;
+    }
+
+    if ($is_client == 0 && $error['realm'] == "CLIENT") {
+        $is_client = 1;
+    }
+
+    $update = SafeMysqliQuery(
+        $CONNECTION,
+            " UPDATE " .
+                $error['tableName'] .
+            " SET " .
+                " `status`=$status, `datetime`=?, `map`=?, `quantity`=$quantity, `message`=?, " .
+                " `stack`=?, `is_client`=$is_client, `is_server`=$is_server " .
+            " WHERE " .
+                " `idx`=" . $registered['idx'],
+        "ssss",
+        GetErrorDate(),
+        $error['map'],
+        $error['msg'],
+        $error['stack']
+    );
 
     if ($update) {
         echo "Entry updated";
@@ -73,6 +106,7 @@ function CheckLastVersionTimestamp($CONNECTION, $error) {
 function Main($CONNECTION) {
     if ( ! (
             ($_POST['addon'] ?? $_POST['databaseName']) &&
+            isset($_POST['realm']) &&
             isset($_POST['msg']) &&
             isset($_POST['stack']) &&
             isset($_POST['map']) &&
@@ -99,6 +133,7 @@ function Main($CONNECTION) {
     }
 
     $error = [
+        'realm' => $_POST['realm'],
         'tableName' => $tableName,
         'msg' => $_POST['msg'],
         'stack' => $_POST['stack'],
