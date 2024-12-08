@@ -18,9 +18,12 @@ CREATE DATABASE IF NOT EXISTS `gmoderror` /*!40100 DEFAULT CHARACTER SET utf8mb4
 USE `gmoderror`;
 
 CREATE TABLE IF NOT EXISTS `config` (
+  `idx` int(11) NOT NULL AUTO_INCREMENT,
   `key` varchar(50) NOT NULL,
-  `value` varchar(50) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `value` varchar(50) DEFAULT NULL,
+  UNIQUE KEY `config_key_IDX` (`key`) USING BTREE,
+  KEY `config_idx_IDX` (`idx`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `config` (`key`, `value`) VALUES
 	('auth', 'admin'),
